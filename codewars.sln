@@ -28,6 +28,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleAssemblerInterpreter"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleAssemblerInterpreterTests", "SimpleAssemblerInterpreterTests\SimpleAssemblerInterpreterTests.csproj", "{879EB90A-32BC-4D85-9E88-F585144D817E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblerInterpreter", "AssemblerInterpreter\AssemblerInterpreter.csproj", "{ECF5BC98-612D-4655-A5BD-52CA2A02D4C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblerInterpreterTests", "AssemblerInterpreterTests\AssemblerInterpreterTests.csproj", "{971AC751-588B-40C8-BE4C-2DD59C52557F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,5 +94,13 @@ Global
 		{879EB90A-32BC-4D85-9E88-F585144D817E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{879EB90A-32BC-4D85-9E88-F585144D817E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{879EB90A-32BC-4D85-9E88-F585144D817E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECF5BC98-612D-4655-A5BD-52CA2A02D4C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECF5BC98-612D-4655-A5BD-52CA2A02D4C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECF5BC98-612D-4655-A5BD-52CA2A02D4C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECF5BC98-612D-4655-A5BD-52CA2A02D4C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{971AC751-588B-40C8-BE4C-2DD59C52557F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{971AC751-588B-40C8-BE4C-2DD59C52557F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{971AC751-588B-40C8-BE4C-2DD59C52557F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{971AC751-588B-40C8-BE4C-2DD59C52557F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
