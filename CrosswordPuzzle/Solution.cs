@@ -2,7 +2,7 @@ namespace CrosswordPuzzle;
 
 public static class Solution
 {
-    private static string[] words = new string[128]
+    public static string[] Words = new string[128]
     {
         "AA", "AB", "AD", "AE", "AG", "AH", "AI", "AL",
         "AM", "AN", "AR", "AS", "AT", "AW", "AX", "AY",
@@ -22,7 +22,7 @@ public static class Solution
         "XU", "YA", "YE", "YO", "YU", "ZA", "ZE", "ZO"
     };
 
-    private static Dictionary<char, int> values = new Dictionary<char, int>
+    public static Dictionary<char, int> Values = new Dictionary<char, int>
     {
         { 'A', 1 }, { 'B', 3 }, { 'C', 3 }, { 'D', 2 }, { 'E', 1 }, { 'F', 4 }, { 'G', 2 },
         { 'H', 4 }, { 'I', 1 }, { 'J', 8 }, { 'K', 5 }, { 'L', 1 }, { 'M', 3 }, { 'N', 1 },
