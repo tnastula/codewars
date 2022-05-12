@@ -32,26 +32,7 @@ public static class Solution
 
     public static List<object[]> Crossword2x2(string[] puzzle)
     {
-        PuzzleSolver solver = new PuzzleSolver(puzzle);
-        List<PuzzleResult> puzzleResults = solver.Result
-            .OrderByDescending(x => x.Points)
-            .ThenBy(x => x.AcrossWord)
-            .ThenBy(x => x.DownWord)
-            .ToList();
-        
-        List<object[]> results = new List<object[]>(solver.Result.Count);
-        foreach (PuzzleResult puzzleResult in puzzleResults)
-        {
-            object[] result = new object[]
-            {
-                puzzleResult.AcrossWord,
-                puzzleResult.DownWord,
-                puzzleResult.Points
-            };
-
-            results.Add(result);
-        }
-
-        return results;
+        PuzzleSolver solver = new(puzzle);
+        return solver.Result;
     }
 }

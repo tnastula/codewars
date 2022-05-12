@@ -2,14 +2,18 @@ namespace CrosswordPuzzle;
 
 public class PuzzleSolver
 {
-    private static readonly char BlockedSpaceSymbol = '#';
-    private static readonly char BlankSpaceSymbol = '_';
+    private const char BlockedSpaceSymbol = '#';
+    private const char BlankSpaceSymbol = '_';
     private static readonly Dictionary<char, List<char>> LetterToFollowingLetters;
     private static readonly Dictionary<char, List<char>> LetterToLeadingLetters;
 
-    private readonly string[] _puzzle;
-    public List<PuzzleResult> Result; 
-    
+    private Coordinate InitialLetterCoordinate { get; set; }
+    private char InitialLetter { get; set; }
+    private List<Coordinate> BlankSpaceCoordinates { get; set; }
+    private Coordinate FirstLetterCoordinate { get; set; }
+    private Coordinate SecondLetterCoordinate { get; set; }
+    public List<object[]> Result;
+
     static PuzzleSolver()
     {
         LetterToFollowingLetters = new Dictionary<char, List<char>>(26);
@@ -30,110 +34,71 @@ public class PuzzleSolver
 
     public PuzzleSolver(string[] puzzle)
     {
-        _puzzle = puzzle;
+        ParseInput(puzzle);
 
-        Coordinate initialLetterCoordinate =
-            GetCoordinatesOfSymbol(symbol => symbol != BlankSpaceSymbol && symbol != BlockedSpaceSymbol)
-                .First();
-        char initialLetter = GetLetterAt(initialLetterCoordinate);
+        PositionType positionType = InitialLetterCoordinate.PositionInRelationTo(FirstLetterCoordinate);
+        List<string> firstWords = GenerateWords(InitialLetter, positionType);
+        Dictionary<string, List<string>> firstWordToSecondWords = new(firstWords.Count);
 
-        List<Coordinate> blankSpaceCoordinates = GetCoordinatesOfSymbol(symbol => symbol == BlankSpaceSymbol);
-
-        Coordinate firstLetterCoordinate = blankSpaceCoordinates[0];
-        Coordinate secondLetterCoordinate = blankSpaceCoordinates[1];
-        PositionType positionType = initialLetterCoordinate.PositionInRelationTo(firstLetterCoordinate);
-        if (positionType == PositionType.Across)
-        {
-            firstLetterCoordinate = blankSpaceCoordinates[1];
-            secondLetterCoordinate = blankSpaceCoordinates[0];
-            positionType = initialLetterCoordinate.PositionInRelationTo(firstLetterCoordinate);
-        }
-
-        List<string> firstWords = GenerateWords(initialLetter, positionType);
-
-        positionType = initialLetterCoordinate.PositionInRelationTo(secondLetterCoordinate);
+        positionType = InitialLetterCoordinate.PositionInRelationTo(SecondLetterCoordinate);
         if (positionType != PositionType.Across)
         {
-            List<string> secondWords = GenerateWords(initialLetter, positionType);
-
-            Result = new List<PuzzleResult>(firstWords.Count * secondWords.Count);
-
+            List<string> secondWords = GenerateWords(InitialLetter, positionType);
             foreach (string firstWord in firstWords)
             {
-                foreach (string secondWord in secondWords)
-                {
-                    if (firstWord.Equals(secondWord))
-                    {
-                        continue;
-                    }
-
-                    if (positionType == PositionType.Left || positionType == PositionType.Right)
-                    {
-                        Result.Add(new PuzzleResult(secondWord, firstWord, CalculatePoints(firstWord, secondWord)));
-                    }
-                    else
-                    {
-                        Result.Add(new PuzzleResult(firstWord, secondWord, CalculatePoints(firstWord, secondWord)));
-                    }
-                }
+                firstWordToSecondWords[firstWord] = secondWords;
             }
         }
         else
         {
-            Dictionary<string, List<string>>
-                firstWordToSecondWords = new Dictionary<string, List<string>>(firstWords.Count);
-
-            positionType = firstLetterCoordinate.PositionInRelationTo(secondLetterCoordinate);
+            positionType = FirstLetterCoordinate.PositionInRelationTo(SecondLetterCoordinate);
             foreach (string firstWord in firstWords)
             {
                 char startingLetterForSecondWords = firstWord[0];
-                if (startingLetterForSecondWords == initialLetter)
+                if (startingLetterForSecondWords == InitialLetter)
                 {
                     startingLetterForSecondWords = firstWord[1];
                 }
+
                 firstWordToSecondWords[firstWord] = GenerateWords(startingLetterForSecondWords, positionType);
             }
-            
-            Result = new List<PuzzleResult>(firstWordToSecondWords.Sum(x => x.Value.Count));
+        }
 
-            foreach (string firstWord in firstWords)
-            {
-                foreach (string secondWord in firstWordToSecondWords[firstWord])
-                {
-                    if (firstWord.Equals(secondWord))
-                    {
-                        continue;
-                    }
+        GenerateResult(firstWords, firstWordToSecondWords, positionType);
+    }
 
-                    if (positionType == PositionType.Left || positionType == PositionType.Right)
-                    {
-                        Result.Add(new PuzzleResult(secondWord, firstWord, CalculatePoints(firstWord, secondWord)));
-                    }
-                    else
-                    {
-                        Result.Add(new PuzzleResult(firstWord, secondWord, CalculatePoints(firstWord, secondWord)));
-                    }
-                }
-            }
+    private void ParseInput(string[] puzzle)
+    {
+        InitialLetterCoordinate = GetCoordinatesOfSymbol(
+                puzzle,
+                symbol => symbol != BlankSpaceSymbol && symbol != BlockedSpaceSymbol)
+            .First();
+        InitialLetter = puzzle[InitialLetterCoordinate.Y][InitialLetterCoordinate.X];
+        BlankSpaceCoordinates = GetCoordinatesOfSymbol(
+            puzzle,
+            symbol => symbol == BlankSpaceSymbol);
+
+        FirstLetterCoordinate = BlankSpaceCoordinates[0];
+        SecondLetterCoordinate = BlankSpaceCoordinates[1];
+        PositionType positionType = InitialLetterCoordinate.PositionInRelationTo(FirstLetterCoordinate);
+        if (positionType == PositionType.Across)
+        {
+            FirstLetterCoordinate = BlankSpaceCoordinates[1];
+            SecondLetterCoordinate = BlankSpaceCoordinates[0];
         }
     }
 
-    private char GetLetterAt(Coordinate coordinate)
+    private List<Coordinate> GetCoordinatesOfSymbol(string[] puzzle, Func<char, bool> criteriaEvaluator)
     {
-        return _puzzle[coordinate.Y][coordinate.X];
-    }
+        List<Coordinate> coordinates = new(4);
 
-    private List<Coordinate> GetCoordinatesOfSymbol(Func<char, bool> criteriaEvaluator)
-    {
-        List<Coordinate> coordinates = new List<Coordinate>(4);
-
-        for (int y = 0; y < _puzzle.Length; y++)
+        for (int y = 0; y < puzzle.Length; y++)
         {
-            for (int x = 0; x < _puzzle[y].Length; x++)
+            for (int x = 0; x < puzzle[y].Length; x++)
             {
-                if (criteriaEvaluator(_puzzle[y][x]))
+                if (criteriaEvaluator(puzzle[y][x]))
                 {
-                    coordinates.Add(new Coordinate(x, y));
+                    coordinates.Add(new(x, y));
                 }
             }
         }
@@ -143,9 +108,9 @@ public class PuzzleSolver
 
     private List<string> GenerateWords(char withLetter, PositionType positionedRelatedToMissingLetter)
     {
-        List<string> words = new List<string>(10);
-        
-        if (positionedRelatedToMissingLetter == PositionType.Left || positionedRelatedToMissingLetter == PositionType.Above)
+        List<string> words = new(10);
+
+        if (positionedRelatedToMissingLetter is PositionType.Left or PositionType.Above)
         {
             foreach (char followingLetter in LetterToFollowingLetters[withLetter])
             {
@@ -153,7 +118,7 @@ public class PuzzleSolver
             }
         }
 
-        if (positionedRelatedToMissingLetter == PositionType.Right || positionedRelatedToMissingLetter == PositionType.Below)
+        if (positionedRelatedToMissingLetter is PositionType.Right or PositionType.Below)
         {
             foreach (char leadingLetter in LetterToLeadingLetters[withLetter])
             {
@@ -164,18 +129,40 @@ public class PuzzleSolver
         return words;
     }
 
-    private int CalculatePoints(params string[] words)
+    private void GenerateResult(List<string> firstWords, Dictionary<string, List<string>> firstWordToSecondWords,
+        PositionType secondWordPositionType)
     {
-        int points = 0;
-        
-        foreach (string word in words)
+        Result = new(firstWordToSecondWords.Sum(x => x.Value.Count));
+
+        foreach (string firstWord in firstWords)
         {
-            foreach (char letter in word)
+            foreach (string secondWord in firstWordToSecondWords[firstWord])
             {
-                points += Solution.Values[letter];
+                if (firstWord.Equals(secondWord))
+                {
+                    continue;
+                }
+
+                string acrossWord = firstWord;
+                string downWord = secondWord;
+                if (secondWordPositionType is PositionType.Left or PositionType.Right)
+                {
+                    acrossWord = secondWord;
+                    downWord = firstWord;
+                }
+
+                Result.Add(new object[]
+                {
+                    acrossWord,
+                    downWord,
+                    firstWord.Sum(x => Solution.Values[x]) + secondWord.Sum(x => Solution.Values[x])
+                });
             }
         }
 
-        return points;
+        Result = Result.OrderByDescending(x => x[2])
+            .ThenBy(x => x[0])
+            .ThenBy(x => x[1])
+            .ToList();
     }
 }
