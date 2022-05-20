@@ -2,12 +2,12 @@
 
 public sealed class Street
 {
-    private readonly List<Building> _cells;
+    private readonly List<Building> _buildings;
     private readonly List<Clue> _clues;
 
-    public Street(List<Building> cells, List<Clue> clues)
+    public Street(List<Building> buildings, List<Clue> clues)
     {
-        _cells = cells;
+        _buildings = buildings;
         _clues = clues;
     }
 }
